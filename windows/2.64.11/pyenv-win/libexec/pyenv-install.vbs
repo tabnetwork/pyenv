@@ -81,8 +81,10 @@ Function deepExtract(params)
     If Not objfs.FolderExists(webCachePath) Then
         deepExtract = objws.Run(""""& params(IP_InstallFile) &""" /quiet /layout """& webCachePath &"""", 0, True)
         If deepExtract Then
-            WScript.Echo ":: [Error] :: error using web installer."
-            Exit Function
+            'WScript.Echo ":: [Error] :: error using web installer."
+            'Exit Function
+            deepExtract = objws.Run(""""& params(IP_InstallFile) &""" /install """ &"""", 1, True)
+            WScript.Echo ":: [Ok] :: installed successfully."
         End If
     End If
 
