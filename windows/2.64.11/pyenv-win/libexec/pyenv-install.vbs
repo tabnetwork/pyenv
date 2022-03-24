@@ -84,7 +84,6 @@ Function deepExtract(params)
             'WScript.Echo ":: [Error] :: error using web installer."
             'Exit Function
             deepExtract = objws.Run(""""& params(IP_InstallFile) &""" /install """ &"""", 1, True)
-            WScript.Echo ":: [Ok] :: installed successfully."
         End If
     End If
 
