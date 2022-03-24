@@ -127,7 +127,7 @@ if [[ "$0" == "bash" ]] || [[ "$0" == "-bash" ]] || [[ "$0" == "/bin/bash" ]] ||
     export PYENV_ROOT="$(dirname $ABSPATH)"
     echo $PATH | grep "${PYENV_ROOT}/bin" >/dev/null 2>&1
     if [[ $? -ne 0 ]] && [[ -f ${PYENV_ROOT}/libexec/pyenv ]]; then
-        export PATH="$PYENV_ROOT/bin:$PATH"
+        export PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
     fi
     cd $cwd
     export -f pybuild
