@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <versions>
-    <version x64="true" webInstall="false" msi="true">
-        <code>2.7.17</code>
-        <file>python-2.7.17.amd64.msi</file>
-        <URL>https://www.python.org/ftp/python/2.7.17/python-2.7.17.amd64.msi</URL>
-    </version>
     <version x64="true" webInstall="true" msi="false">
         <code>3.5.4</code>
         <file>python-3.5.4-amd64.exe</file>
