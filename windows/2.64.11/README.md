@@ -2,7 +2,7 @@
 
 **Important tips**
 
-<mark>It is recommended to use the install.ps1 script to install python<mark>
+> **It is recommended to use the install.ps1 script to install python**
 
 [pyenv][1] is a great tool. We have ported it to Windows. We need your thoughts to improve this library and your feedback helps to grow the project.
 
