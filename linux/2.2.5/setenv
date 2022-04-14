@@ -111,7 +111,7 @@ completion() {
     subcommand="${COMP_WORDS[1]}"
 
     # TODO 
-    local opts="2.7.17 3.5.4 3.6.8 3.7.9 3.8.10 3.9.10 3.10.2"
+    local opts="3.5.4 3.6.8 3.7.9 3.8.10 3.9.10 3.10.2"
     if [ $COMP_CWORD = 1 ]; then
         COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
         return 0
