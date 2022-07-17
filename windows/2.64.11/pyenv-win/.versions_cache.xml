@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <versions>
     <version x64="true" webInstall="true" msi="false">
-        <code>3.5.9</code>
-        <file>python-3.5.9-amd64.exe</file>
-        <URL>https://www.python.org/ftp/python/3.5.9/python-3.5.9-amd64.exe</URL>
+        <code>3.5.4</code>
+        <file>python-3.5.4-amd64.exe</file>
+        <URL>https://www.python.org/ftp/python/3.5.4/python-3.5.4-amd64.exe</URL>
     </version>
     <version x64="true" webInstall="true" msi="false">
-        <code>3.6.15</code>
-        <file>python-3.6.15-amd64.exe</file>
-        <URL>https://www.python.org/ftp/python/3.6.15/python-3.6.15-amd64.exe</URL>
+        <code>3.6.8</code>
+        <file>python-3.6.8-amd64.exe</file>
+        <URL>https://www.python.org/ftp/python/3.6.8/python-3.6.8-amd64.exe</URL>
     </version>
     <version x64="true" webInstall="true" msi="false">
-        <code>3.7.13</code>
-        <file>python-3.7.13-amd64.exe</file>
-        <URL>https://www.python.org/ftp/python/3.7.13/python-3.7.13-amd64.exe</URL>
+        <code>3.7.9</code>
+        <file>python-3.7.9-amd64.exe</file>
+        <URL>https://www.python.org/ftp/python/3.7.9/python-3.7.9-amd64.exe</URL>
     </version>
     <version x64="true" webInstall="true" msi="false">
-        <code>3.8.13</code>
-        <file>python-3.8.13-amd64.exe</file>
-        <URL>https://www.python.org/ftp/python/3.8.13/python-3.8.13-amd64.exe</URL>
+        <code>3.8.10</code>
+        <file>python-3.8.10-amd64.exe</file>
+        <URL>https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe</URL>
     </version>
     <version x64="true" webInstall="true" msi="false">
         <code>3.9.13</code>
