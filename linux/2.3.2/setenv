@@ -18,22 +18,37 @@ _exists() {
 }
 
 _depends() {
-    ! _exists "curl" && _red "Error: curl command not found.\n" && sleep 3 && exit 1
-    ! _exists "perl" && _red "Error: perl command not found.\n" && sleep 3 && exit 1
-    ! _exists "tar" && _red "Error: tar command not found.\n" && sleep 3 && exit 1
-
-    ! _exists "gcc" && _red "Error: gcc command not found.\n" && sleep 3 && exit 1
-    ! _exists "make" && _red "Error: make command not found.\n" && sleep 3 && exit 1
+    tools=""
+    ! _exists "curl" && tools="$tools"" curl "
+    ! _exists "perl" && tools="$tools"" perl "
+    ! _exists "tar" && tools="$tools"" tar "
+    ! _exists "gcc" && tools="$tools"" gcc "
+    ! _exists "make" && tools="$tools"" make "
 
     # TODO: 
     #    rpm                       /   dpkg
-    # dnf yum zypper               / apt-get pkg pacman
-
+    # dnf yum zypper               / apt-get
+    # xz-devel                     / liblzma-dev
     # libffi-devel                 / libffi-dev
     # zlib-devel                   / zlib1g-dev
     # bzip2-devel/bzip-devel       / libbz2-dev
     # readline-devel               / libreadline-dev
     # sqlite-devel/sqlite3-devel   / libsqlite3-dev
+    if _exists "dnf" ; then
+        [[ $tools != "" ]] && dnf install $tools -y
+        dnf install libffi-devel zlib-devel bzip2-devel readline-devel sqlite-devel xz-devel -y
+    elif _exists "yum" ; then
+        [[ $tools != "" ]] && yum install $tools -y
+        yum install libffi-devel zlib-devel bzip2-devel readline-devel sqlite-devel xz-devel -y
+    elif _exists "zypper" ; then
+        [[ $tools != "" ]] && zypper install $tools -y
+        zypper install libffi-devel zlib-devel bzip-devel readline-devel sqlite3-devel xz-devel -y
+    elif _exists "apt-get" ; then
+        [[ $tools != "" ]] && apt-get install $tools -y
+        apt-get install libffi-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev -y
+    else
+        _red "Error: platform not supported.\n" && sleep 3 && exit 1
+    fi
 }
 
 pybuild() {
@@ -49,10 +64,11 @@ pybuild() {
         python_url="https://www.python.org/ftp/python/${python_version}/Python-${python_version}.tar.xz"
     fi
 
+    _depends
     # TODO 
     if [[ "${openssl_version}" == "" ]]; then
         # if use openssl 3.x
-        if [[ 1 == 1 ]]; then
+        if [[ 1 == 0 ]]; then
             openssl_version=3.0.4
             openssl_url="https://www.openssl.org/source/old/3.0/openssl-3.0.4.tar.gz"
             openssl_path=${PYENV_ROOT}/openssl/3.0.4
@@ -154,7 +170,6 @@ completion() {
 # main
 # if not source method, exit 1
 if [[ "$0" == "bash" ]] || [[ "$0" == "-bash" ]] || [[ "$0" == "/bin/bash" ]] || [[ "$0" == "/usr/bin/bash" ]]; then
-    _depends
     cwd=$(pwd -P)
     cd $(dirname $BASH_SOURCE)
     ABSPATH="$(echo $(pwd -P)/$(basename $BASH_SOURCE))"
