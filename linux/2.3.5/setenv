@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+
+_red() {
+    printf '\033[0;31;31m%b\033[0m' "$1"
+}
+
+_exists() {
+    local cmd="$1"
+    if eval type type > /dev/null 2>&1; then
+        eval type "$cmd" > /dev/null 2>&1
+    elif command > /dev/null 2>&1; then
+        command -v "$cmd" > /dev/null 2>&1
+    else
+        which "$cmd" > /dev/null 2>&1
+    fi
+    local rt=$?
+    return ${rt}
+}
+
+_depends() {
+    tools=""
+    ! _exists "curl" && tools="$tools"" curl "
+    ! _exists "perl" && tools="$tools"" perl "
+    ! _exists "tar" && tools="$tools"" tar "
+    ! _exists "gcc" && tools="$tools"" gcc "
+    ! _exists "make" && tools="$tools"" make "
+
+    # TODO: 
+    #    rpm                       /   dpkg
+    # dnf yum zypper               / apt-get
+    # xz-devel                     / liblzma-dev
+    # libffi-devel                 / libffi-dev
+    # zlib-devel                   / zlib1g-dev
+    # bzip2-devel/bzip-devel       / libbz2-dev
+    # readline-devel               / libreadline-dev
+    # sqlite-devel/sqlite3-devel   / libsqlite3-dev
+    if _exists "dnf" ; then
+        [[ $tools != "" ]] && dnf install $tools -y
+        dnf install libffi-devel zlib-devel bzip2-devel readline-devel sqlite-devel xz-devel perl-Pod-Html -y
+    elif _exists "yum" ; then
+        [[ $tools != "" ]] && yum install $tools -y
+        yum install libffi-devel zlib-devel bzip2-devel readline-devel sqlite-devel xz-devel perl-Pod-Html -y
+    elif _exists "zypper" ; then
+        [[ $tools != "" ]] && zypper install $tools -y
+        zypper install libffi-devel zlib-devel bzip-devel readline-devel sqlite3-devel xz-devel -y
+    elif _exists "apt-get" ; then
+        [[ $tools != "" ]] && apt-get install $tools -y
+        apt-get install libffi-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev liblzma-dev -y
+    else
+        _red "Error: platform not supported.\n" && sleep 3 && exit 1
+    fi
+}
+
+pybuild() {
+    local python_version=$1
+    local openssl_version=$2
+    local src_url=$3
+    local python_url=""
+    local openssl_url=""
+
+    if [[ "${python_version}" == "" ]] || [[ "$PYENV_ROOT" == "" ]]; then
+        return 1
+    else
+        python_url="https://www.python.org/ftp/python/${python_version}/Python-${python_version}.tar.xz"
+    fi
+
+    _depends
+    # TODO 
+    if [[ "${openssl_version}" == "" ]]; then
+        # if use openssl 3.x
+        if [[ 1 == 0 ]]; then
+            openssl_version=3.0.4
+            openssl_url="https://www.openssl.org/source/old/3.0/openssl-3.0.4.tar.gz"
+            openssl_path=${PYENV_ROOT}/openssl/3.0.4
+        else
+            openssl_version=1.1.1q
+            openssl_url="https://www.openssl.org/source/old/1.1.1/openssl-1.1.1q.tar.gz"
+            openssl_path=${PYENV_ROOT}/openssl/1.1.1q
+        fi
+    else
+        openssl_path=${PYENV_ROOT}/openssl/${openssl_version}
+    fi
+
+    if [[ "$src_url" != "" ]]; then
+        python_url="${src_url}/Python-${python_version}.tar.xz"
+        openssl_url="${src_url}/openssl-${openssl_version}.tar.gz"
+    fi
+
+    cwd=$(pwd -P)
+    export PYTHON_BUILD_CACHE_PATH=/tmp/.download
+    if [[ ! -f $PYTHON_BUILD_CACHE_PATH/Python-${python_version}.tar.xz ]]; then
+        mkdir -p $PYTHON_BUILD_CACHE_PATH
+        curl -L ${python_url} -o $PYTHON_BUILD_CACHE_PATH/Python-${python_version}.tar.xz
+    fi
+    if [[ ! -f ${openssl_path}/include/openssl/ssl.h ]]; then
+        if [[ ! -f ${PYTHON_BUILD_CACHE_PATH}/openssl-${openssl_version}.tar.gz ]]; then
+            mkdir -p $PYTHON_BUILD_CACHE_PATH
+            curl -L ${openssl_url} -o ${PYTHON_BUILD_CACHE_PATH}/openssl-${openssl_version}.tar.gz
+        fi
+        tar xvf ${PYTHON_BUILD_CACHE_PATH}/openssl-${openssl_version}.tar.gz -C /tmp
+        cd /tmp/openssl-${openssl_version}
+        ./config --prefix=${openssl_path} --openssldir=${openssl_path}  shared && make -j$(nproc) && make install
+        ret=$?
+        rm -rf /tmp/openssl-${openssl_version}
+        if [[ $ret -ne 0 ]]; then
+            cd $cwd
+            return 1
+        fi
+    fi
+    cd $cwd
+
+    oldpath=$PATH
+    if [[ -f ${openssl_path}/lib/libssl.a ]]; then
+        export CFLAGS="-I${openssl_path}/include -I${openssl_path}/include/openssl"
+        export CPPFLAGS="-I${openssl_path}/include -I${openssl_path}/include/openssl"
+        export LDFLAGS="-L${openssl_path}/lib -Wl,-rpath ${openssl_path}/lib"
+        export LD_RUN_PATH=${openssl_path}/lib
+        export LD_LIBRARY_PATH=${openssl_path}/lib
+        export PKG_CONFIG_PATH=${openssl_path}/lib/pkgconfig
+        export PATH=${openssl_path}/bin:$PATH
+    elif [[ -f ${openssl_path}/lib64/libssl.a ]]; then
+        export CFLAGS="-I${openssl_path}/include -I${openssl_path}/include/openssl"
+        export CPPFLAGS="-I${openssl_path}/include -I${openssl_path}/include/openssl"
+        export LDFLAGS="-L${openssl_path}/lib64 -Wl,-rpath ${openssl_path}/lib64"
+        export LD_RUN_PATH=${openssl_path}/lib64
+        export LD_LIBRARY_PATH=${openssl_path}/lib64
+        export PKG_CONFIG_PATH=${openssl_path}/lib64/pkgconfig
+        export PATH=${openssl_path}/bin:$PATH
+    fi
+
+    export PYTHONPATH=${PYENV_ROOT}/versions/${python_version}/bin
+    export PIP_REQUIRE_VIRTUALENV=false
+    export PATH=$PYTHONPATH:$PATH
+    CONFIGURE_OPTS="--enable-shared" pyenv install ${python_version} --verbose
+    >/tmp/python-build.log
+    http_proxy=""
+    https_proxy=""
+    mirror_flag=" -i https://mirrors.aliyun.com/pypi/simple/ "
+    ${PYENV_ROOT}/versions/${python_version}/bin/python -m pip install ${mirror_flag} --upgrade pip --no-python-version-warning 2>>/tmp/python-build.log
+    ${PYENV_ROOT}/versions/${python_version}/bin/python -m pip install ${mirror_flag} --upgrade setuptools --no-python-version-warning 2>>/tmp/python-build.log
+    ${PYENV_ROOT}/versions/${python_version}/bin/python -m pip install ${mirror_flag} --upgrade wheel --no-python-version-warning 2>>/tmp/python-build.log
+    ${PYENV_ROOT}/versions/${python_version}/bin/python -m pip install ${mirror_flag} --upgrade uwsgi --no-python-version-warning 2>>/tmp/python-build.log
+    ${PYENV_ROOT}/versions/${python_version}/bin/python -m pip install ${mirror_flag} --upgrade virtualenv --no-python-version-warning 2>>/tmp/python-build.log
+    export PKG_CONFIG_PATH=""
+    export LD_LIBRARY_PATH=""
+    export LD_RUN_PATH=""
+    export LDFLAGS=""
+    export CPPFLAGS=""
+    export CFLAGS=""
+    export PIP_REQUIRE_VIRTUALENV=""
+    export PYTHONPATH=""
+    export PATH=$oldpath
+}
+
+completion() {
+    local cur subcommand
+    COMPREPLY=()
+
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    subcommand="${COMP_WORDS[1]}"
+
+    # TODO 
+    local opts="3.5.4 3.6.8 3.7.9 3.8.10 3.9.13 3.10.8"
+    if [ $COMP_CWORD = 1 ]; then
+        COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
+        return 0
+    fi
+}
+
+# main
+# if not source method, exit 1
+if [[ "$0" == "bash" ]] || [[ "$0" == "-bash" ]] || [[ "$0" == "/bin/bash" ]] || [[ "$0" == "/usr/bin/bash" ]]; then
+    cwd=$(pwd -P)
+    cd $(dirname $BASH_SOURCE)
+    ABSPATH="$(echo $(pwd -P)/$(basename $BASH_SOURCE))"
+    export PYENV_ROOT="$(dirname $ABSPATH)"
+    echo $PATH | grep "${PYENV_ROOT}/bin" >/dev/null 2>&1
+    if [[ $? -ne 0 ]] && [[ -f ${PYENV_ROOT}/libexec/pyenv ]]; then
+        export PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+    fi
+    cd $cwd
+    export -f pybuild
+    complete -F completion pybuild
+    eval "$(pyenv init -)"
+else
+    _red "Error: you should source this script.\n" && sleep 3 && exit 1
+fi

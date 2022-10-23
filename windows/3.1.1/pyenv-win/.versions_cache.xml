@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<versions>
+    <version x64="true" webInstall="true" msi="false">
+        <code>3.5.4</code>
+        <file>python-3.5.4-amd64.exe</file>
+        <URL>https://www.python.org/ftp/python/3.5.4/python-3.5.4-amd64.exe</URL>
+    </version>
+    <version x64="true" webInstall="true" msi="false">
+        <code>3.6.8</code>
+        <file>python-3.6.8-amd64.exe</file>
+        <URL>https://www.python.org/ftp/python/3.6.8/python-3.6.8-amd64.exe</URL>
+    </version>
+    <version x64="true" webInstall="true" msi="false">
+        <code>3.7.9</code>
+        <file>python-3.7.9-amd64.exe</file>
+        <URL>https://www.python.org/ftp/python/3.7.9/python-3.7.9-amd64.exe</URL>
+    </version>
+    <version x64="true" webInstall="true" msi="false">
+        <code>3.8.10</code>
+        <file>python-3.8.10-amd64.exe</file>
+        <URL>https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe</URL>
+    </version>
+    <version x64="true" webInstall="true" msi="false">
+        <code>3.9.13</code>
+        <file>python-3.9.13-amd64.exe</file>
+        <URL>https://www.python.org/ftp/python/3.9.13/python-3.9.13-amd64.exe</URL>
+    </version>
+    <version x64="true" webInstall="true" msi="false">
+        <code>3.10.8</code>
+        <file>python-3.10.8-amd64.exe</file>
+        <URL>https://www.python.org/ftp/python/3.10.8/python-3.10.8-amd64.exe</URL>
+    </version>
+    <version x64="false" webInstall="false" msi="false">
+        <code>pypy3.7-v7.3.3-win32</code>
+        <file>pypy3.7-v7.3.3-win32.zip</file>
+        <URL>https://downloads.python.org/pypy/pypy3.7-v7.3.3-win32.zip</URL>
+        <zipRootDir>pypy3.7-v7.3.3-win32</zipRootDir>
+    </version>
+    <version x64="true" webInstall="false" msi="false">
+        <code>pypy3.7-v7.3.4</code>
+        <file>pypy3.7-v7.3.4-win64.zip</file>
+        <URL>https://downloads.python.org/pypy/pypy3.7-v7.3.4-win64.zip</URL>
+        <zipRootDir>pypy3.7-v7.3.4-win64</zipRootDir>
+    </version>
+</versions>
